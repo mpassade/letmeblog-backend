@@ -3,8 +3,8 @@ const bcrypt = require('bcryptjs')
 
 module.exports = {
     checkRegister: (req, res, next) => {
-        const { firstName, lastName, email, username } = req.body
-        if (!firstName || !lastName || !email || !username){
+        const { fname, lname, email, username } = req.body
+        if (!fname || !lname || !email || !username){
             return res.json({
                 error: ['All fields are required']
             })
@@ -32,5 +32,15 @@ module.exports = {
         }).catch(err => {
             console.log(`Server Error: ${err}`)
         })
+    },
+
+    checkLogin: (req, res, next) => {
+        const {username, password} = req.body
+        if (!username || !password){
+            return res.json({
+                error: ['All fields are required']
+            })
+        }
+        next()
     }
 }

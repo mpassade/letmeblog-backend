@@ -5,7 +5,7 @@ const {
     register
 } = require('./controllers/controller')
 const {
-    checkRegister, duplicateAccount
+    checkRegister, duplicateAccount, checkLogin
 } = require('./middleware/middleware')
 
 router.post(
@@ -13,6 +13,10 @@ router.post(
     checkRegister,
     duplicateAccount,
     register
+)
+router.post(
+    '/login',
+    checkLogin
 )
 
 module.exports = router

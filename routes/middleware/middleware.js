@@ -6,7 +6,8 @@ module.exports = {
         const { fname, lname, email, username } = req.body
         if (!fname || !lname || !email || !username){
             return res.json({
-                error: ['All fields are required']
+                type: 'error',
+                text: 'All fields are required'
             })
         }
         next()
@@ -16,13 +17,15 @@ module.exports = {
         User.findOne({email: req.body.email}).then(user => {
             if(user){
                 return res.json({
-                    error: ['An account with that email address already exists']
+                    type: 'error',
+                    text: 'An account with that email address already exists'
                 })
             }
             User.findOne({username: req.body.username}).then(user1 => {
                 if(user1){
                     return res.json({
-                        error: ['An account with that username already exists']
+                        type: 'error',
+                        text: 'An account with that username already exists'
                     })
                 }
                 next()
@@ -38,7 +41,8 @@ module.exports = {
         const {username, password} = req.body
         if (!username || !password){
             return res.json({
-                error: ['All fields are required']
+                type: 'error',
+                text: 'All fields are required'
             })
         }
         next()

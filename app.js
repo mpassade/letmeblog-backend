@@ -4,9 +4,9 @@ const mongoose = require('mongoose')
 const morgan = require('morgan')
 const cors = require('cors')
 const router = require('./routes/routes')
-const port = process.env.PORT
-
 require('dotenv').config()
+
+const port = process.env.PORT
 
 app.use(morgan('dev'))
 app.use(express.json())

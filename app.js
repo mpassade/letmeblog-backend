@@ -3,8 +3,10 @@ const app = express()
 const mongoose = require('mongoose')
 const morgan = require('morgan')
 const cors = require('cors')
+const passport = require('passport')
 const router = require('./routes/routes')
 require('dotenv').config()
+require('./lib/passport.js')
 
 const port = process.env.PORT
 
@@ -12,6 +14,7 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 app.use(cors())
+app.use(passport.initialize())
 // app.use((req, res, next) => {
 //     res.locals.user = req.user
 //     next()

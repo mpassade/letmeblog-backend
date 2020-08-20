@@ -48,5 +48,25 @@ module.exports = {
         }).catch(err => {
             console.log(`Server Error: ${err}`)
         })
+    },
+
+    setPwd: (req, res) => {
+        User.findOne({_id: req.params.id})
+        .then(user => {
+            const salt = bcrypt.genSaltSync(10)
+            const hash = bcrypt.hashSync(req.body.newPass, salt)
+            user.password = hash
+            user.tempPassword = false
+            user.save().then(() => {
+                return res.json({
+                    type: 'success',
+                    text: 'Password set! Please login below'
+                })
+            }).catch(err => {
+                console.log(`Server Error: ${err}`)
+            })
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
+        })
     }
 }

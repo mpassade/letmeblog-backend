@@ -45,31 +45,6 @@ module.exports = {
                 text: 'All fields are required'
             })
         }
-        User.findOne({username}).then(user => {
-            if (!user){
-                return res.json({
-                    type: 'error',
-                    text: 'An account with that username does not exist'
-                })
-            }
-            if (user.tempPassword===true){
-                return res.json({
-                    type: 'error',
-                    text: "You're using a temp password. Please follow the link in the email and set a new password."
-                })
-            }
-            bcrypt.compare(password, user.password)
-            .then((result) => {
-                if (!result) {
-                    console.log('err 3')
-                    return done(null, false, {message: 'Check email and password'})
-                }
-            }).catch(err => {
-                console.log(`Server Error: ${err}`)
-            })
-        }).catch(err => {
-            console.log(`Server Error: ${err}`)
-        })
         next()
     },
 

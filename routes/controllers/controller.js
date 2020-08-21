@@ -1,5 +1,6 @@
 const User = require('../models/userModel')
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 const nodemailer = require("nodemailer")
 const nanoid = require('nanoid').nanoid
 
@@ -68,5 +69,60 @@ module.exports = {
         }).catch(err => {
             console.log(`Server Error: ${err}`)
         })
+    },
+
+    login: (req, res) => {
+        User.findOne({username: req.body.username}).then(user => {
+            if (!user){
+                return res.json({
+                    type: 'error',
+                    text: 'An account with that username does not exist'
+                })
+            }
+            if (user.tempPassword===true){
+                return res.json({
+                    type: 'error',
+                    text: "Please follow the link in the email and set a new password"
+                })
+            }
+            bcrypt.compare(req.body.password, user.password)
+            .then((result) => {
+                if (!result) {
+                    return res.json({
+                        type: 'error',
+                        text: 'Check email and password'
+                    })
+                }
+                const token = jwt.sign({id: user._id}, process.env.JWT_SECRET)
+                return res.json({token})
+            }).catch(err => {
+                console.log(`Server Error: ${err}`)
+            })
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
+        })
+    },
+
+    chkTmpPwd: (req, res) => {
+        User.findById(req.params.id).then(user => {
+            if (user.tempPassword){
+                return res.json({tempPwd: true})
+            }
+            return res.json({tempPwd: false})
+        }).catch(() => {
+            return res.json({tempPwd: false})
+        })
+    },
+
+    getUser: (req, res) => {
+        if (!req.user){
+            return res.json({isAuthenticated: false})
+        }
+        return res.json({user: {
+            username: req.user.username,
+            email: req.user.email,
+            firstName: req.user.firstName,
+            lastName: req.user.lastName
+        }})
     }
 }

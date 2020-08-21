@@ -1,10 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const jwt = require('jsonwebtoken')
+
 
 const {
-    register, setPwd
+    register, setPwd, login, chkTmpPwd, getUser
 } = require('./controllers/controller')
 const {
     checkRegister, duplicateAccount, checkLogin, checkPwds,
@@ -20,13 +20,7 @@ router.post(
 router.post(
     '/login',
     checkLogin,
-    passport.authenticate('local-login', 
-    )
-    // }), (req, res) => {
-    //     console.log(res)
-    //     const token = jwt.sign({id: req.user.id}, 'jwt_secret')
-    //     res.json({token: token})
-    // }
+    login
 )
 router.put(
     '/set-password/:id',
@@ -34,6 +28,14 @@ router.put(
     checkTemp,
     checkNewPwd,
     setPwd
+)
+router.get('/check-temp-pwd/:id', chkTmpPwd)
+router.get(
+    '/user',
+    passport.authenticate('jwt', {
+        session: false
+    }), 
+    getUser
 )
 
 module.exports = router

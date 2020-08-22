@@ -51,10 +51,8 @@ const UserSchema = new mongoose.Schema({
         default: '/images/profile-pics/default.png'
     },
     blogPosts: [{
-        post: { 
-            type: Schema.Types.ObjectId,
-            ref: 'Blog'
-        }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Blog'
     }]
 })
 

@@ -4,25 +4,29 @@ const UserSchema = new mongoose.Schema({
     firstName: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        max: 32
     },
     lastName: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        max: 32
     },
     email: {
         type: String,
         trim: true,
         required: true,
         lowercase: true,
-        unique: true
+        unique: true,
+        max: 32
     },
     username: {
         type: String,
         trim: true,
         required: true,
-        unique: true
+        unique: true,
+        max: 16
     },
     password: {
         type: String,
@@ -31,12 +35,27 @@ const UserSchema = new mongoose.Schema({
         max: 32
     },
     verificationCode: {
-        type: String
+        type: String,
+        default: ''
     },
     tempPassword: {
         type: Boolean,
         default: true
-    }
+    },
+    bio: {
+        type: String,
+        trim: true
+    },
+    picture: {
+        type: String,
+        default: '/images/profile-pics/default.png'
+    },
+    blogPosts: [{
+        post: { 
+            type: Schema.Types.ObjectId,
+            ref: 'Blog'
+        }
+    }]
 })
 
-module.exports = mongoose.model('user', UserSchema)
+module.exports = mongoose.model('User', UserSchema)

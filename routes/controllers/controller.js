@@ -120,9 +120,11 @@ module.exports = {
         }
         return res.json({user: {
             username: req.user.username,
-            email: req.user.email,
             firstName: req.user.firstName,
-            lastName: req.user.lastName
+            lastName: req.user.lastName,
+            bio: req.user.bio,
+            picture: req.user.picture,
+            blogPosts: req.user.blogPosts
         }})
     }
 }

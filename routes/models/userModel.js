@@ -4,29 +4,25 @@ const UserSchema = new mongoose.Schema({
     firstName: {
         type: String,
         required: true,
-        trim: true,
-        max: 32
+        trim: true
     },
     lastName: {
         type: String,
         required: true,
-        trim: true,
-        max: 32
+        trim: true
     },
     email: {
         type: String,
         trim: true,
         required: true,
         lowercase: true,
-        unique: true,
-        max: 32
+        unique: true
     },
     username: {
         type: String,
         trim: true,
         required: true,
-        unique: true,
-        max: 16
+        unique: true
     },
     password: {
         type: String,
@@ -50,6 +46,18 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: '/images/profile-pics/default.png'
     },
+    private: {
+        type: Boolean,
+        default: true
+    },
+    follows: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    followedBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     blogPosts: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Blog'

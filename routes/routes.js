@@ -5,7 +5,7 @@ const passport = require('passport')
 
 const {
     register, setPwd, login, chkTmpPwd, getUser, changePwd,
-    editProfile
+    editProfile, verify
 } = require('./controllers/controller')
 const {
     checkRegister, duplicateAccount, checkLogin, checkPwds,
@@ -49,6 +49,10 @@ router.put(
     '/edit-profile/:id',
     checkEdit,
     editProfile
+)
+router.put(
+    '/verify-email/:id/:code/:email',
+    verify
 )
 
 module.exports = router

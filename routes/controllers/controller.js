@@ -178,17 +178,15 @@ module.exports = {
                         from: "Let Me Blog Team <letmeblog.team@gmail.com>",
                         to: email,
                         subject: "Email Verification",
-                        text: `Hi ${fname},\nPlease go to the below link to verify your new email address.\nhttp://localhost:3000/verify-email/${user._id}/${code}`,
-                        html: `<p>Hi ${fname},</p><p>Please click the below link to verify your new email address.</p><a href="http://localhost:3000/verify-email/${user._id}/${code}">Verify Email</a>`,
+                        text: `Hi ${fname},\nPlease go to the below link to verify your new email address.\nhttp://localhost:3000/verify-email/${user._id}/${code}/${email}`,
+                        html: `<p>Hi ${fname},</p><p>Please click the below link to verify your new email address.</p><a href="http://localhost:3000/verify-email/${user._id}/${code}/${email}">Verify Email</a>`,
                     }
                     await transporter.sendMail(mailOptions)
                 }
-                main().then(() => {
-                    user.verificationCode = code
-                })
-                .catch(err => {
+                main().catch(err => {
                     console.log(`Server Error: ${err}`)
                 })
+                user.verificationCode = code
             }
             user.save().then(savedUser => {
                 if (savedUser.email!==email){
@@ -239,4 +237,33 @@ module.exports = {
             console.log(`Server Error: ${err}`)
         })
     },
+
+    verify: (req, res) => {
+        User.findById(req.params.id).then(user => {
+            if (user){
+                if (user.verificationCode===req.params.code){
+                    user.email = req.params.email
+                    user.verificationCode = ''
+                    user.save().then(savedUser => {
+                        return res.json({
+                            type: 'success',
+                            text: 'Email Changed!'
+                        })
+                    })
+                } else {
+                    return res.json({
+                        message: 'User not found'
+                    })
+                }
+            } else {
+                return res.json({
+                    message: 'User not found'
+                })
+            }
+        }).catch(() => {
+            return res.json({
+                message: 'User not found'
+            })
+        })
+    }
 }

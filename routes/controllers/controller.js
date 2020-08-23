@@ -119,14 +119,17 @@ module.exports = {
             return res.json({isAuthenticated: false})
         }
         return res.json({user: {
+            id: req.user._id,
             username: req.user.username,
             firstName: req.user.firstName,
             lastName: req.user.lastName,
+            email: req.user.email,
             bio: req.user.bio,
             picture: req.user.picture,
             blogPosts: req.user.blogPosts,
             follows: req.user.follows.length,
-            followedBy: req.user.followedBy.length
+            followedBy: req.user.followedBy.length,
+            privacy: req.user.private ? 'private' : 'public'
         }})
     },
 
@@ -147,5 +150,93 @@ module.exports = {
         }).catch(err => {
             console.log(`Server Error: ${err}`)
         })
-    }
+    },
+
+    editProfile: (req, res) => {
+        const { fname, lname, email, username, privacy, bio, picture } = req.body
+        User.findOne({_id: req.params.id})
+        .then(user => {
+            user.firstName = fname
+            user.lastName = lname
+            user.username = username
+            user.picture = picture
+            user.bio = bio
+            user.private = privacy==='private'
+            if (user.email!==email){
+                const code = nanoid()
+                const main = async () => {
+                    let transporter = nodemailer.createTransport({
+                        host: process.env.SMTP_URI,
+                        port: process.env.SMTP_PORT,
+                        secure: false,
+                        auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_SECRET
+                        }
+                    })
+                    let mailOptions = {
+                        from: "Let Me Blog Team <letmeblog.team@gmail.com>",
+                        to: email,
+                        subject: "Email Verification",
+                        text: `Hi ${fname},\nPlease go to the below link to verify your new email address.\nhttp://localhost:3000/verify-email/${user._id}/${code}`,
+                        html: `<p>Hi ${fname},</p><p>Please click the below link to verify your new email address.</p><a href="http://localhost:3000/verify-email/${user._id}/${code}">Verify Email</a>`,
+                    }
+                    await transporter.sendMail(mailOptions)
+                }
+                main().then(() => {
+                    user.verificationCode = code
+                })
+                .catch(err => {
+                    console.log(`Server Error: ${err}`)
+                })
+            }
+            user.save().then(savedUser => {
+                if (savedUser.email!==email){
+                    return res.json({
+                        user: {
+                            id: savedUser._id,
+                            username: savedUser.username,
+                            firstName: savedUser.firstName,
+                            lastName: savedUser.lastName,
+                            email: savedUser.email,
+                            bio: savedUser.bio,
+                            picture: savedUser.picture,
+                            blogPosts: savedUser.blogPosts,
+                            follows: savedUser.follows.length,
+                            followedBy: savedUser.followedBy.length,
+                            privacy: savedUser.private ? 'private' : 'public'
+                        },
+                        message: {
+                            type: 'success',
+                            text: 'An email from letmeblog.team@gmail.com was just sent to you. Please click the link in it to verify your new email address.'
+                        }
+                    })
+                } else {
+                    return res.json({
+                        user: {
+                            id: savedUser._id,
+                            username: savedUser.username,
+                            firstName: savedUser.firstName,
+                            lastName: savedUser.lastName,
+                            email: savedUser.email,
+                            bio: savedUser.bio,
+                            picture: savedUser.picture,
+                            blogPosts: savedUser.blogPosts,
+                            follows: savedUser.follows.length,
+                            followedBy: savedUser.followedBy.length,
+                            privacy: savedUser.private ? 'private' : 'public'
+                        },
+                        message: {
+                            type: 'success',
+                            text: 'Profile Updated!'
+                        }
+                    })
+                }
+            }).catch(err => {
+                console.log(`Server Error: ${err}`)
+            })
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
+        })
+    },
 }

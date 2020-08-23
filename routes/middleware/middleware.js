@@ -127,5 +127,46 @@ module.exports = {
         }).catch(err => {
             console.log(`Server Error: ${err}`)
         })
-    }
+    },
+
+    checkEdit: (req, res, next) => {
+        const { fname, lname, email, username } = req.body
+        if (!fname || !lname || !email || !username){
+            return res.json({
+                message: {
+                    type: 'error',
+                    text: 'First name, last name, username and email are required'
+                }
+            })
+        }
+        User.findOne({email}).then(user => {
+            if (user){
+                if (JSON.stringify(user._id) !== JSON.stringify(req.params.id)){
+                    return res.json({
+                        message: {
+                            type: 'error',
+                            text: 'An account with that email address already exists'
+                        }
+                    })
+                }
+            }
+            User.findOne({username}).then(user1 => {
+                if (user1){
+                    if (JSON.stringify(user1._id) !== JSON.stringify(req.params.id)){
+                        return res.json({
+                            message: {
+                                type: 'error',
+                                text: 'An account with that username already exists'
+                            }
+                        })
+                    }
+                }
+                next()
+            }).catch(err => {
+                console.log(`Server Error: ${err}`)
+            })
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
+        })
+    },
 }

@@ -97,4 +97,35 @@ module.exports = {
         }
         next()
     },
+
+    checkPwds2: (req, res, next) => {
+        const { oldPass, newPass, confirmNew } = req.body
+        if (!oldPass || !newPass || !confirmNew){
+            return res.json({
+                type: 'error',
+                text: 'All fields are required'
+            })
+        }
+        next()
+    },
+
+    checkOld: (req, res, next) => {
+        User.findOne({username: req.params.username})
+        .then(user => {
+            bcrypt.compare(req.body.oldPass, user.password)
+            .then(result => {
+                if (result){
+                    return next()
+                }
+                return res.json({
+                    type: 'error',
+                    text: 'Old password is incorrect'
+                })
+            }).catch(err => {
+                console.log(`Server Error: ${err}`)
+            })
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
+        })
+    }
 }

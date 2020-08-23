@@ -4,11 +4,11 @@ const passport = require('passport')
 
 
 const {
-    register, setPwd, login, chkTmpPwd, getUser
+    register, setPwd, login, chkTmpPwd, getUser, changePwd
 } = require('./controllers/controller')
 const {
     checkRegister, duplicateAccount, checkLogin, checkPwds,
-    checkTemp, checkNewPwd
+    checkTemp, checkNewPwd, checkPwds2, checkOld
 } = require('./middleware/middleware')
 
 router.post(
@@ -36,6 +36,13 @@ router.get(
         session: false
     }), 
     getUser
+)
+router.put(
+    '/change-password/:username',
+    checkPwds2,
+    checkOld,
+    checkNewPwd,
+    changePwd
 )
 
 module.exports = router

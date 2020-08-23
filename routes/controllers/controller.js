@@ -124,7 +124,28 @@ module.exports = {
             lastName: req.user.lastName,
             bio: req.user.bio,
             picture: req.user.picture,
-            blogPosts: req.user.blogPosts
+            blogPosts: req.user.blogPosts,
+            follows: req.user.follows.length,
+            followedBy: req.user.followedBy.length
         }})
+    },
+
+    changePwd: (req, res) => {
+        User.findOne({username: req.params.username})
+        .then(user => {
+            const salt = bcrypt.genSaltSync(10)
+            const hash = bcrypt.hashSync(req.body.newPass, salt)
+            user.password = hash
+            user.save().then(() => {
+                return res.json({
+                    type: 'success',
+                    text: 'Password changed!'
+                })
+            }).catch(err => {
+                console.log(`Server Error: ${err}`)
+            })
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
+        })
     }
 }

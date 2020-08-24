@@ -15,10 +15,6 @@ app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 app.use(cors())
 app.use(passport.initialize())
-// app.use((req, res, next) => {
-//     res.locals.user = req.user
-//     next()
-// })
 app.use('/', router)
 
 mongoose.connect(process.env.MONGODB_URI, {

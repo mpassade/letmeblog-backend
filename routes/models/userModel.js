@@ -44,7 +44,7 @@ const UserSchema = new mongoose.Schema({
     },
     picture: {
         type: String,
-        default: '/images/profile-pics/default.png'
+        default: '/images/profile-photos/default.png'
     },
     private: {
         type: Boolean,

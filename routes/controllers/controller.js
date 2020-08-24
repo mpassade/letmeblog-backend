@@ -2,6 +2,7 @@ const User = require('../models/userModel')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const nodemailer = require("nodemailer")
+const multer = require('multer')
 const nanoid = require('nanoid').nanoid
 
 module.exports = {
@@ -153,13 +154,12 @@ module.exports = {
     },
 
     editProfile: (req, res) => {
-        const { fname, lname, email, username, privacy, bio, picture } = req.body
+        const { fname, lname, email, username, privacy, bio } = req.body
         User.findOne({_id: req.params.id})
         .then(user => {
             user.firstName = fname
             user.lastName = lname
             user.username = username
-            user.picture = picture
             user.bio = bio
             user.private = privacy==='private'
             if (user.email!==email){
@@ -264,6 +264,42 @@ module.exports = {
             return res.json({
                 message: 'User not found'
             })
+        })
+    },
+
+    uploadPhoto: (req, res) => {
+        User.findById(req.params.id).then(user => {
+            const storage = multer.diskStorage({
+                destination: (request, file, cb) => {
+                    cb(null, '../letmeblog-frontend/public/images/profile-photos/')
+                },
+                filename: (request, file, cb) => {
+                    cb(null, Date.now() + '.' + file.mimetype.slice(6) )
+                }
+            })
+            const upload = multer({ storage: storage }).single('file')
+            upload(req, res, (err) => {
+                if (err instanceof multer.MulterError) {
+                    return console.log(err)
+                } else if (err) {
+                    return console.log(err)
+                }
+                console.log(req.file)
+                user.picture = '/images/profile-photos/' + req.file.filename
+                user.save().then(savedUser => {
+                    res.json({
+                        user: {
+                            picture: savedUser.picture
+                        },
+                        message: {
+                            type: 'success',
+                            text: 'Photo Changed!'
+                        }
+                    })
+                })
+            })
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
         })
     }
 }

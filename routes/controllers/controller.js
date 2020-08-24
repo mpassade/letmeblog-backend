@@ -1,4 +1,5 @@
 const User = require('../models/userModel')
+const Blog = require('../models/blogModel')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const nodemailer = require("nodemailer")
@@ -284,7 +285,6 @@ module.exports = {
                 } else if (err) {
                     return console.log(err)
                 }
-                console.log(req.file)
                 user.picture = '/images/profile-photos/' + req.file.filename
                 user.save().then(savedUser => {
                     res.json({
@@ -300,6 +300,34 @@ module.exports = {
             })
         }).catch(err => {
             console.log(`Server Error: ${err}`)
+        })
+    },
+
+    post: (req, res) => {
+        const {title, blog} = req.body
+        if (!title && !blog){
+            return res.json({
+                type: 'error',
+                text: 'Nothing Entered'
+            })
+        }
+        User.findById(req.params.id).then(user => {
+            const blogPost = new Blog()
+            blogPost.title = title
+            blogPost.content = blog
+            blogPost.author = user._id
+            blogPost.save().then(posted => {
+                user.blogPosts.unshift(posted._id)
+                user.save().then(() => {
+                    return res.json({type: 'success'})
+                }).catch(err => {
+                    console.log(`Server Error1: ${err}`)
+                })
+            }).catch(err => {
+                console.log(`Server Error2: ${err}`)
+            })
+        }).catch(err => {
+            console.log(`Server Error3: ${err}`)
         })
     }
 }

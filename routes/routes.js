@@ -5,7 +5,7 @@ const passport = require('passport')
 
 const {
     register, setPwd, login, chkTmpPwd, getUser, changePwd,
-    editProfile, verify, uploadPhoto
+    editProfile, verify, uploadPhoto, post
 } = require('./controllers/controller')
 const {
     checkRegister, duplicateAccount, checkLogin, checkPwds,
@@ -57,6 +57,10 @@ router.put(
 router.post(
     '/upload/:id',
     uploadPhoto
+)
+router.post(
+    '/create-post/:id',
+    post
 )
 
 module.exports = router

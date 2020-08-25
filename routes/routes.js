@@ -5,7 +5,8 @@ const passport = require('passport')
 
 const {
     register, setPwd, login, chkTmpPwd, getUser, changePwd,
-    editProfile, verify, uploadPhoto, post, getUserBlog, search
+    editProfile, verify, uploadPhoto, post, getUserBlog, search,
+    follow, unfollow
 } = require('./controllers/controller')
 const {
     checkRegister, duplicateAccount, checkLogin, checkPwds,
@@ -72,6 +73,14 @@ router.post(
 router.get(
     '/search/:value',
     search
+)
+router.put(
+    '/follow/:id/:id2',
+    follow
+)
+router.put(
+    '/unfollow/:id/:id2',
+    unfollow
 )
 
 module.exports = router

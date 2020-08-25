@@ -366,5 +366,69 @@ module.exports = {
         }).catch(err => {
             console.log(`Server Error: ${err}`)
         })
+    },
+
+    follow: (req, res) => {
+        User.findById(req.params.id).then(user => {
+            User.findById(req.params.id2).then(user2 => {
+                user.follows.push(user2._id)
+                user.save().then(savedUser => {
+                    user2.followedBy.push(savedUser._id)
+                    user2.save().then(() => {
+                        return res.json({
+                            user: {
+                                id: savedUser._id,
+                                username: savedUser.username,
+                                firstName: savedUser.firstName,
+                                lastName: savedUser.lastName,
+                                email: savedUser.email,
+                                bio: savedUser.bio,
+                                picture: savedUser.picture,
+                                blogPosts: savedUser.blogPosts,
+                                follows: savedUser.follows,
+                                followedBy: savedUser.followedBy.length,
+                                privacy: savedUser.private ? 'private' : 'public'
+                            }
+                        })
+                    }).catch(err => {
+                        console.log(`Server Error1: ${err}`)
+                    })
+                }).catch(err => {
+                    console.log(`Server Error2: ${err}`)
+                })
+            }).catch(err => {
+            console.log(`Server Error3: ${err}`)
+        })
+        }).catch(err => {
+            console.log(`Server Error4: ${err}`)
+        })
+    },
+
+    unfollow: (req, res) => {
+        User.findOneAndUpdate({_id: req.params.id}, {$pullAll: {follows: [req.params.id2]}}, {new: true})
+        .then(user => {
+            User.findOneAndUpdate({_id: req.params.id2}, {$pullAll: {followedBy: [req.params.id]}})
+            .then(() => {
+                return res.json({
+                    user: {
+                        id: user._id,
+                        username: user.username,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        email: user.email,
+                        bio: user.bio,
+                        picture: user.picture,
+                        blogPosts: user.blogPosts,
+                        follows: user.follows,
+                        followedBy: user.followedBy.length,
+                        privacy: user.private ? 'private' : 'public'
+                    }
+                })
+            }).catch(err => {
+                console.log(`Server Error1: ${err}`)
+            })
+        }).catch(err => {
+        console.log(`Server Error2: ${err}`)
+        })
     }
 }

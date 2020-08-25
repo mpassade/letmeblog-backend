@@ -526,5 +526,69 @@ module.exports = {
         }).catch(err => {
             console.log(`Server Error: ${err}`)
         })
+    },
+
+    forgotPwd: (req, res) => {
+        User.findOne({email: req.params.email})
+        .then(user => {
+            const code = nanoid()
+            const salt = bcrypt.genSaltSync(10)
+            const hash = bcrypt.hashSync(code, salt)
+            user.verificationCode = hash
+            user.tempPassword = false
+            user.save().then(savedUser => {
+                const main = async () => {
+                    let transporter = nodemailer.createTransport({
+                        host: process.env.SMTP_URI,
+                        port: process.env.SMTP_PORT,
+                        secure: false,
+                        auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_SECRET
+                        }
+                    })
+                    let mailOptions = {
+                        from: "Let Me Blog Team <letmeblog.team@gmail.com>",
+                        to: req.params.email,
+                        subject: "Password Reset",
+                        text: `Hi ${savedUser.firstName},\nPlease click the following link and use the temporary password to set a new one.\nTemporary Password: ${code}\nLink: http://localhost:3000/reset-password/${savedUser._id}`,
+                        html: `<p>Hi ${savedUser.firstName},</p><p>Please click the below link and use the following temporary password to set a new one.</p><p>Temporary Password: ${code}</p><a href='http://localhost:3000/reset-password/${savedUser._id}'>Reset Password</a>`,
+                    }
+                    await transporter.sendMail(mailOptions)
+                }
+                main().then(() => {
+                    return res.json({
+                        type: 'success',
+                        text: 'An email from letmeblog.team@gmail.com was just sent to you. Please follow its directions to reset your password.'
+                    })
+                }).catch(err => {
+                    console.log(`Server Error2: ${err}`)
+                })
+            }).catch(err => {
+                console.log(`Server Error2: ${err}`)
+            })
+        }).catch(err => {
+            console.log(`Server Error3: ${err}`)
+        })
+    },
+
+    resetPwd: (req, res) => {
+        User.findOne({_id: req.params.id})
+        .then(user => {
+            const salt = bcrypt.genSaltSync(10)
+            const hash = bcrypt.hashSync(req.body.newPass, salt)
+            user.password = hash
+            user.verificationCode = ''
+            user.save().then(() => {
+                return res.json({
+                    type: 'success',
+                    text: 'Password set! Please login below'
+                })
+            }).catch(err => {
+                console.log(`Server Error: ${err}`)
+            })
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
+        })
     }
 }

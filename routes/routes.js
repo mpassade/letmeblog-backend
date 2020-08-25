@@ -6,11 +6,12 @@ const passport = require('passport')
 const {
     register, setPwd, login, chkTmpPwd, getUser, changePwd,
     editProfile, verify, uploadPhoto, post, getUserBlog, search,
-    follow, unfollow, getOther, home, searchAll
+    follow, unfollow, getOther, home, searchAll, forgotPwd, resetPwd
 } = require('./controllers/controller')
 const {
     checkRegister, duplicateAccount, checkLogin, checkPwds,
-    checkTemp, checkNewPwd, checkPwds2, checkOld, checkEdit
+    checkTemp, checkNewPwd, checkPwds2, checkOld, checkEdit,
+    checkCode
 } = require('./middleware/middleware')
 
 router.post(
@@ -104,5 +105,15 @@ router.get(
     '/search-all',
     searchAll
 )
-
+router.put(
+    '/forgot-password/:email',
+    forgotPwd
+)
+router.put(
+    '/reset-password/:id',
+    checkPwds,
+    checkCode,
+    checkNewPwd,
+    resetPwd
+)
 module.exports = router

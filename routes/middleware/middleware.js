@@ -79,6 +79,26 @@ module.exports = {
         })
     },
 
+    checkCode: (req, res, next) => {
+        User.findOne({_id: req.params.id})
+        .then(user => {
+            bcrypt.compare(req.body.tempPass, user.verificationCode)
+            .then(result => {
+                if (result){
+                    return next()
+                }
+                return res.json({
+                    type: 'error',
+                    text: 'Invalid Temporary Password'
+                })
+            }).catch(err => {
+                console.log(`Server Error: ${err}`)
+            })
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
+        })
+    },
+
     checkNewPwd: (req, res, next) => {
         const regex = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/
         if (req.body.newPass !== req.body.confirmNew){

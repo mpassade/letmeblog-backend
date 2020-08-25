@@ -430,5 +430,49 @@ module.exports = {
         }).catch(err => {
         console.log(`Server Error2: ${err}`)
         })
+    },
+
+    getOther: (req, res) => {
+        User.findOne({username: req.params.username})
+        .then(user => {
+            if (!user){
+                return res.json({noUser: true})
+            }
+            if (user.private){
+                return res.json({
+                    user: {
+                        username: user.username,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        bio: user.bio,
+                        picture: user.picture,
+                        follows: user.follows,
+                        followedBy: user.followedBy.length,
+                        privacy: user.private ? 'private' : 'public'
+                    },
+                    username: req.user ? req.user.username : ''
+                })
+            }
+            Blog.find({author: user._id}).then(blogs => {
+                return res.json({
+                    user: {
+                        username: user.username,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        bio: user.bio,
+                        picture: user.picture,
+                        follows: user.follows,
+                        followedBy: user.followedBy.length,
+                        privacy: user.private ? 'private' : 'public'
+                    },
+                    blogs: blogs.reverse(),
+                    username: req.user ? req.user.username : ''
+                })
+            }).catch(err => {
+                console.log(`Server Error1: ${err}`)
+            })
+        }).catch(err => {
+            console.log(`Server Error2: ${err}`)
+        })
     }
 }

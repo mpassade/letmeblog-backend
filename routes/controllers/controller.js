@@ -374,7 +374,7 @@ module.exports = {
                 user.follows.push(user2._id)
                 user.save().then(savedUser => {
                     user2.followedBy.push(savedUser._id)
-                    user2.save().then(() => {
+                    user2.save().then(savedUser2 => {
                         return res.json({
                             user: {
                                 id: savedUser._id,
@@ -386,8 +386,21 @@ module.exports = {
                                 picture: savedUser.picture,
                                 blogPosts: savedUser.blogPosts,
                                 follows: savedUser.follows,
-                                followedBy: savedUser.followedBy.length,
+                                followedBy: savedUser.followedBy,
                                 privacy: savedUser.private ? 'private' : 'public'
+                            },
+                            user2: {
+                                id: savedUser2._id,
+                                username: savedUser2.username,
+                                firstName: savedUser2.firstName,
+                                lastName: savedUser2.lastName,
+                                email: savedUser2.email,
+                                bio: savedUser2.bio,
+                                picture: savedUser2.picture,
+                                blogPosts: savedUser2.blogPosts,
+                                follows: savedUser2.follows,
+                                followedBy: savedUser2.followedBy,
+                                privacy: savedUser2.private ? 'private' : 'public'
                             }
                         })
                     }).catch(err => {
@@ -407,8 +420,8 @@ module.exports = {
     unfollow: (req, res) => {
         User.findOneAndUpdate({_id: req.params.id}, {$pullAll: {follows: [req.params.id2]}}, {new: true})
         .then(user => {
-            User.findOneAndUpdate({_id: req.params.id2}, {$pullAll: {followedBy: [req.params.id]}})
-            .then(() => {
+            User.findOneAndUpdate({_id: req.params.id2}, {$pullAll: {followedBy: [req.params.id]}}, {new: true})
+            .then(user2 => {
                 return res.json({
                     user: {
                         id: user._id,
@@ -420,8 +433,21 @@ module.exports = {
                         picture: user.picture,
                         blogPosts: user.blogPosts,
                         follows: user.follows,
-                        followedBy: user.followedBy.length,
+                        followedBy: user.followedBy,
                         privacy: user.private ? 'private' : 'public'
+                    },
+                    user2: {
+                        id: user2._id,
+                        username: user2.username,
+                        firstName: user2.firstName,
+                        lastName: user2.lastName,
+                        email: user2.email,
+                        bio: user2.bio,
+                        picture: user2.picture,
+                        blogPosts: user2.blogPosts,
+                        follows: user2.follows,
+                        followedBy: user2.followedBy,
+                        privacy: user2.private ? 'private' : 'public'
                     }
                 })
             }).catch(err => {
@@ -441,32 +467,40 @@ module.exports = {
             if (user.private){
                 return res.json({
                     user: {
+                        id: user._id,
                         username: user.username,
                         firstName: user.firstName,
                         lastName: user.lastName,
                         bio: user.bio,
+                        blogPosts: user.blogPosts,
                         picture: user.picture,
                         follows: user.follows,
-                        followedBy: user.followedBy.length,
+                        followedBy: user.followedBy,
                         privacy: user.private ? 'private' : 'public'
                     },
-                    username: req.user ? req.user.username : ''
+                    username: req.user ? req.user.username : '',
+                    follows: req.user ? req.user.follows : [],
+                    id: req.user ? req.user._id : ''
                 })
             }
             Blog.find({author: user._id}).then(blogs => {
                 return res.json({
                     user: {
+                        id: user._id,
                         username: user.username,
                         firstName: user.firstName,
                         lastName: user.lastName,
                         bio: user.bio,
+                        blogPosts: user.blogPosts,
                         picture: user.picture,
                         follows: user.follows,
-                        followedBy: user.followedBy.length,
+                        followedBy: user.followedBy,
                         privacy: user.private ? 'private' : 'public'
                     },
                     blogs: blogs.reverse(),
-                    username: req.user ? req.user.username : ''
+                    username: req.user ? req.user.username : '',
+                    follows: req.user ? req.user.follows : [],
+                    id: req.user ? req.user._id : ''
                 })
             }).catch(err => {
                 console.log(`Server Error1: ${err}`)

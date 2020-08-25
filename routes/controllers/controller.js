@@ -129,7 +129,7 @@ module.exports = {
             bio: req.user.bio,
             picture: req.user.picture,
             blogPosts: req.user.blogPosts,
-            follows: req.user.follows.length,
+            follows: req.user.follows,
             followedBy: req.user.followedBy.length,
             privacy: req.user.private ? 'private' : 'public'
         }})
@@ -305,10 +305,10 @@ module.exports = {
 
     post: (req, res) => {
         const {title, blog} = req.body
-        if (!title && !blog){
+        if (!title || !blog){
             return res.json({
                 type: 'error',
-                text: 'Nothing Entered'
+                text: 'All fields are required'
             })
         }
         User.findById(req.params.id).then(user => {
@@ -328,6 +328,43 @@ module.exports = {
             })
         }).catch(err => {
             console.log(`Server Error3: ${err}`)
+        })
+    },
+
+    getUserBlog: (req, res) => {
+        if (!req.user){
+            return res.json({isAuthenticated: false})
+        }
+        const user = {
+            id: req.user._id,
+            username: req.user.username,
+            firstName: req.user.firstName,
+            lastName: req.user.lastName,
+            email: req.user.email,
+            bio: req.user.bio,
+            picture: req.user.picture,
+            blogPosts: req.user.blogPosts,
+            follows: req.user.follows.length,
+            followedBy: req.user.followedBy.length,
+            privacy: req.user.private ? 'private' : 'public'
+        }
+        Blog.find({author: req.user._id}).then(blogs => {
+                return res.json({
+                    user,
+                    blogs: blogs.reverse()
+                })
+            
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
+        })
+    },
+
+    search: (req, res) => {
+        User.find({username: {$regex: req.params.value, $options: 'i'}})
+        .then(users => {
+            return res.json({users})
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
         })
     }
 }

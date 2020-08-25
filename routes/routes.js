@@ -5,7 +5,7 @@ const passport = require('passport')
 
 const {
     register, setPwd, login, chkTmpPwd, getUser, changePwd,
-    editProfile, verify, uploadPhoto, post
+    editProfile, verify, uploadPhoto, post, getUserBlog, search
 } = require('./controllers/controller')
 const {
     checkRegister, duplicateAccount, checkLogin, checkPwds,
@@ -38,6 +38,13 @@ router.get(
     }), 
     getUser
 )
+router.get(
+    '/user-blog',
+    passport.authenticate('jwt', {
+        session: false
+    }), 
+    getUserBlog
+)
 router.put(
     '/change-password/:username',
     checkPwds2,
@@ -61,6 +68,10 @@ router.post(
 router.post(
     '/create-post/:id',
     post
+)
+router.get(
+    '/search/:value',
+    search
 )
 
 module.exports = router

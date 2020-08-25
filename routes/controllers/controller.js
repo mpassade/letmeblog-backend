@@ -368,6 +368,14 @@ module.exports = {
         })
     },
 
+    searchAll: (req, res) => {
+        User.find().then(users => {
+            return res.json({users})
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
+        })
+    },
+
     follow: (req, res) => {
         User.findById(req.params.id).then(user => {
             User.findById(req.params.id2).then(user2 => {
@@ -507,6 +515,16 @@ module.exports = {
             })
         }).catch(err => {
             console.log(`Server Error2: ${err}`)
+        })
+    },
+
+    home: (req, res) => {
+        User.find({_id: {$in: req.user.follows}}).then(users => {
+            return res.json({
+                users
+            })
+        }).catch(err => {
+            console.log(`Server Error: ${err}`)
         })
     }
 }

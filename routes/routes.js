@@ -6,7 +6,7 @@ const passport = require('passport')
 const {
     register, setPwd, login, chkTmpPwd, getUser, changePwd,
     editProfile, verify, uploadPhoto, post, getUserBlog, search,
-    follow, unfollow, getOther
+    follow, unfollow, getOther, home, searchAll
 } = require('./controllers/controller')
 const {
     checkRegister, duplicateAccount, checkLogin, checkPwds,
@@ -92,6 +92,17 @@ router.get(
         session: false
     }), 
     getOther
+)
+router.get(
+    '/home',
+    passport.authenticate('jwt', {
+        session: false
+    }), 
+    home
+)
+router.get(
+    '/search-all',
+    searchAll
 )
 
 module.exports = router
